@@ -2,45 +2,49 @@
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
-import * as groups from '../store/Groups';
+import * as GroupsState from '../store/Groups';
 
+type GroupsProps =
+    GroupsState.GroupsState
+    & typeof GroupsState.actionCreators 
+    & RouteComponentProps<{ startDateIndex: string }>; 
 
-let data: groups.GroupModel[] = [];
+class Groups extends React.Component<GroupsProps, {}> {
+    componentDidMount() {
+        this.props.requestGroups();
+    }
 
-export default class Groups extends React.Component<RouteComponentProps<{}>, {}>{
-
-    componentWillMount() {
-        data = groups.actionCreators.requestGroups();
+    componentDidReceiveProps(nextProps: GroupsProps) {
+        this.props.requestGroups();
     }
 
     public render() {
-
         return <div>
             <h1>Groups</h1>
             {this.renderGroupsTable()}
         </div>;
     }
 
-
-    public renderGroupsTable() {
-
-        if (data) {
-            return <table className='table'>
-                <thead>
-                    <tr>
-                        <th>Name</th>
+    private renderGroupsTable() {
+        return <table className='table'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {this.props.currentGroups.map(group =>
+                    <tr key={group.id}>
+                        <td>{group.name}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {data.map(group =>
-                        <tr key={group.name}>
-                            <td>{group.name}</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        }
-
+                )}
+            </tbody>
+        </table>;
     }
+
 }
 
+export default connect(
+    (state: ApplicationState) => state.groups,
+    GroupsState.actionCreators                
+)(Groups) as typeof Groups;

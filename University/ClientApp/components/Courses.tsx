@@ -2,45 +2,49 @@
 import { Link, RouteComponentProps } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { ApplicationState } from '../store';
-import * as courses from '../store/Courses';
+import * as CoursesState from '../store/Courses';
 
+type CoursesProps =
+    CoursesState.CoursesState
+    & typeof CoursesState.actionCreators
+    & RouteComponentProps<{ startDateIndex: string }>;
 
-let data: courses.CourseModel[] = [];
+class Courses extends React.Component<CoursesProps, {}> {
+    componentDidMount() {
+        this.props.requestCourses();
+    }
 
-export default class Courses extends React.Component<RouteComponentProps<{}>, {}>{
-
-    componentWillMount() {
-        data = courses.actionCreators.requestCourses();
+    componentDidReceiveProps(nextProps: CoursesProps) {
+        this.props.requestCourses();
     }
 
     public render() {
-
         return <div>
             <h1>Courses</h1>
             {this.renderCoursesTable()}
         </div>;
     }
 
-
-    public renderCoursesTable() {
-
-        if (data) {
-            return <table className='table'>
-                <thead>
-                    <tr>
-                        <th>Name</th>
+    private renderCoursesTable() {
+        return <table className='table'>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                </tr>
+            </thead>
+            <tbody>
+                {this.props.currentCourses.map(course =>
+                    <tr key={course.id}>
+                        <td>{course.name}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {data.map(course =>
-                        <tr key={course.name}>
-                            <td>{course.name}</td>
-                        </tr>
-                    )}
-                </tbody>
-            </table>
-        }
-
+                )}
+            </tbody>
+        </table>;
     }
-} 
 
+}
+
+export default connect(
+    (state: ApplicationState) => state.courses,
+    CoursesState.actionCreators
+)(Courses) as typeof Courses;
