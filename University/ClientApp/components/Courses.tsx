@@ -22,6 +22,7 @@ class Courses extends React.Component<CoursesProps, {}> {
         return <div>
             <h1>Courses</h1>
             {this.renderCoursesTable()}
+            {this.props.isLoading ? <span>Loading...</span> : []}
         </div>;
     }
 
@@ -29,13 +30,16 @@ class Courses extends React.Component<CoursesProps, {}> {
         return <table className='table'>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Name</th>
                 </tr>
             </thead>
             <tbody>
                 {this.props.currentCourses.map(course =>
                     <tr key={course.id}>
+                        <td>{course.id}</td>
                         <td>{course.name}</td>
+                        <td><button onClick={() => { this.props.removeCourse(course.id) }}>Remove</button></td>
                     </tr>
                 )}
             </tbody>

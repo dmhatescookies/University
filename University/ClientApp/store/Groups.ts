@@ -23,7 +23,13 @@ interface ReceiveGroupsAction {
     currentGroups: GroupModel[];
 }
 
-type KnownAction = RequestGroupsAction | ReceiveGroupsAction;
+interface RemoveGroupAction {
+    type: 'REMOVE_GROUP';
+    id: number;
+    currentGroups: GroupModel[];
+}
+
+type KnownAction = RequestGroupsAction | ReceiveGroupsAction | RemoveGroupAction;
 
 export const actionCreators = {
     requestGroups: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -36,6 +42,21 @@ export const actionCreators = {
 
             addTask(fetchTask);
             dispatch({ type: 'REQUEST_GROUPS'});
+
+    },
+
+    removeGroup: (id: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+
+        let fetchTask = fetch(`api/Groups/` + id, {
+            method: 'DELETE'
+        }) 
+            .then(response => response.json() as Promise<GroupModel[]>)
+            .then(data => {
+                dispatch({ type: 'REMOVE_GROUP', id, currentGroups: data });
+            });
+
+        addTask(fetchTask);
+        dispatch({ type: 'REQUEST_GROUPS' });
 
     }
 };
@@ -55,6 +76,14 @@ export const reducer: Reducer<GroupsState> = (state: GroupsState, incomingAction
                 currentGroups: action.currentGroups,
                 isLoading: false
             }
+        case 'REMOVE_GROUP':
+            return {
+                currentGroups: state.currentGroups.filter((group) => {
+                    return action.id !== group.id;
+                }),
+                isLoading: false
+            };
+           
         default:
             const exhaustiveCheck: never = action;
     }

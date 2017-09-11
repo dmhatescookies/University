@@ -22,6 +22,7 @@ class Groups extends React.Component<GroupsProps, {}> {
         return <div>
             <h1>Groups</h1>
             {this.renderGroupsTable()}
+            {this.props.isLoading ? <span>Loading...</span> : []}
         </div>;
     }
 
@@ -29,13 +30,16 @@ class Groups extends React.Component<GroupsProps, {}> {
         return <table className='table'>
             <thead>
                 <tr>
+                    <th>ID</th>
                     <th>Name</th>
                 </tr>
             </thead>
             <tbody>
                 {this.props.currentGroups.map(group =>
                     <tr key={group.id}>
+                        <td>{group.id}</td>
                         <td>{group.name}</td>
+                        <td><button onClick={() => { this.props.removeGroup(group.id) }}>Remove</button></td>
                     </tr>
                 )}
             </tbody>

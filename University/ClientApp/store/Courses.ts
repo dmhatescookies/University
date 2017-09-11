@@ -23,7 +23,13 @@ interface ReceiveCoursesAction {
     currentCourses: CourseModel[];
 }
 
-type KnownAction = RequestCoursesAction | ReceiveCoursesAction;
+interface RemoveCoursesAction {
+    type: 'REMOVE_COURSE';
+    id: number;
+    currentCourses: CourseModel[];
+}
+
+type KnownAction = RequestCoursesAction | ReceiveCoursesAction | RemoveCoursesAction;
 
 export const actionCreators = {
     requestCourses: (): AppThunkAction<KnownAction> => (dispatch, getState) => {
@@ -37,7 +43,23 @@ export const actionCreators = {
         addTask(fetchTask);
         dispatch({ type: 'REQUEST_COURSES' });
 
+    },
+
+    removeCourse: (id: number): AppThunkAction<KnownAction> => (dispatch, getState) => {
+
+        let fetchTask = fetch(`api/Courses/` + id, {
+            method: 'DELETE'
+        })
+            .then(response => response.json() as Promise<CourseModel[]>)
+            .then(data => {
+                dispatch({ type: 'REMOVE_COURSE', id, currentCourses: data });
+            });
+
+        addTask(fetchTask);
+        dispatch({ type: 'REQUEST_COURSES' });
+
     }
+
 };
 
 const unloadedState: CoursesState = { currentCourses: [], isLoading: false };
@@ -55,6 +77,13 @@ export const reducer: Reducer<CoursesState> = (state: CoursesState, incomingActi
                 currentCourses: action.currentCourses,
                 isLoading: false
             }
+        case 'REMOVE_COURSE':
+            return {
+                currentCourses: state.currentCourses.filter((course) => {
+                    return action.id !== course.id;
+                }),
+                isLoading: false
+            };
         default:
             const exhaustiveCheck: never = action;
     }

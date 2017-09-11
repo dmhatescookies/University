@@ -22,6 +22,7 @@ class Students extends React.Component<StudentsProps, {}> {
         return <div>
             <h1>Students</h1>
             {this.renderStudentsTable()}
+            {this.props.isLoading ? <span>Loading...</span> : []}
         </div>;
     }
 
@@ -37,9 +38,11 @@ class Students extends React.Component<StudentsProps, {}> {
             <tbody>
                 {this.props.currentStudents.map(student =>
                     <tr key={student.id}>
+                        <td>{student.id}</td>
                         <td>{student.firstName}</td>
                         <td>{student.lastName}</td>
                         <td>{student.dateOfBirth}</td>
+                        <td><button onClick={() => { this.props.removeStudent(student.id) }}>Remove</button></td>
                     </tr>
                 )}
             </tbody>
